@@ -83,6 +83,41 @@ LeagueOfkingdomsSampleBot/
 
 ### Adımlar
 
+#### Windows Kullanıcıları için Hızlı Kurulum
+
+1. **Depoyu klonlayın:**
+```bash
+git clone https://github.com/birolservis-max/LeagueOfkingdomsSampleBot.git
+cd LeagueOfkingdomsSampleBot
+```
+
+2. **setup.bat dosyasını çalıştırın:**
+```bash
+setup.bat
+```
+
+Bu script otomatik olarak:
+- Python versiyonunu kontrol eder
+- Sanal ortam oluşturur
+- Gerekli paketleri yükler
+- Klasör yapısını hazırlar
+
+3. **Yapılandırmayı düzenleyin:**
+- `config/settings.py` dosyasını düzenleyin
+- Oyun sunucu ayarlarını yapılandırın
+- Bildirim ayarlarını düzenleyin (Discord/Telegram)
+
+4. **Botu başlatın:**
+```bash
+# Test modunda
+start.bat --dry-run --debug
+
+# Normal modda
+start.bat
+```
+
+#### Linux/Mac Kullanıcıları için Manuel Kurulum
+
 1. **Depoyu klonlayın:**
 ```bash
 git clone https://github.com/birolservis-max/LeagueOfkingdomsSampleBot.git
@@ -93,8 +128,6 @@ cd LeagueOfkingdomsSampleBot
 ```bash
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-# veya
-venv\Scripts\activate  # Windows
 ```
 
 3. **Bağımlılıkları yükleyin:**
@@ -102,7 +135,12 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-4. **Yapılandırmayı düzenleyin:**
+4. **Gerekli klasörleri oluşturun:**
+```bash
+mkdir -p logs data
+```
+
+5. **Yapılandırmayı düzenleyin:**
 ```bash
 # config/settings.py dosyasını ihtiyaçlarınıza göre düzenleyin
 ```
@@ -110,6 +148,26 @@ pip install -r requirements.txt
 ## ⚙️ Yapılandırma
 
 Tüm ayarlar `config/settings.py` dosyasında bulunur:
+
+### Gerçek Oyun Entegrasyonu Ayarları
+
+```python
+# Gerçek oyun entegrasyonu için ayarlar
+GameIntegrationSettings.SIMULATION_MODE = False  # Gerçek oyunu kullanmak için False yapın
+GameIntegrationSettings.GAME_SERVER_URL = "https://game.leagueofkingdoms.com"
+GameIntegrationSettings.AUTH_TOKEN = "your_auth_token_here"
+GameIntegrationSettings.USER_ID = "your_user_id"
+
+# Entegrasyon yöntemi seçin
+GameIntegrationSettings.AUTOMATION_METHOD = "api"  # "api", "screen", veya "hybrid"
+GameIntegrationSettings.USE_API = True  # API kullanımı
+
+# Ekran görüntü tabanlı entegrasyon için (opsiyonel)
+GameIntegrationSettings.USE_SCREEN_CAPTURE = False
+GameIntegrationSettings.OCR_ENABLED = False
+```
+
+**Önemli:** Gerçek oyun entegrasyonu için `SIMULATION_MODE = False` yapın ve gerekli kimlik doğrulama bilgilerini girin.
 
 ### Temel Ayarlar
 
