@@ -9,6 +9,7 @@ League of Kingdoms oyunu için geliştirilmiş Python tabanlı kristal tespit ve
 - [Proje Yapısı](#proje-yapısı)
 - [Kurulum](#kurulum)
 - [Yapılandırma](#yapılandırma)
+- [Gerçek Oyun Entegrasyonu](#gerçek-oyun-entegrasyonu)
 - [Kullanım](#kullanım)
 - [Modüller](#modüller)
 - [Test](#test)
@@ -83,6 +84,41 @@ LeagueOfkingdomsSampleBot/
 
 ### Adımlar
 
+#### Windows Kullanıcıları için Hızlı Kurulum
+
+1. **Depoyu klonlayın:**
+```bash
+git clone https://github.com/birolservis-max/LeagueOfkingdomsSampleBot.git
+cd LeagueOfkingdomsSampleBot
+```
+
+2. **setup.bat dosyasını çalıştırın:**
+```bash
+setup.bat
+```
+
+Bu script otomatik olarak:
+- Python versiyonunu kontrol eder
+- Sanal ortam oluşturur
+- Gerekli paketleri yükler
+- Klasör yapısını hazırlar
+
+3. **Yapılandırmayı düzenleyin:**
+- `config/settings.py` dosyasını düzenleyin
+- Oyun sunucu ayarlarını yapılandırın
+- Bildirim ayarlarını düzenleyin (Discord/Telegram)
+
+4. **Botu başlatın:**
+```bash
+# Test modunda
+start.bat --dry-run --debug
+
+# Normal modda
+start.bat
+```
+
+#### Linux/Mac Kullanıcıları için Manuel Kurulum
+
 1. **Depoyu klonlayın:**
 ```bash
 git clone https://github.com/birolservis-max/LeagueOfkingdomsSampleBot.git
@@ -93,8 +129,6 @@ cd LeagueOfkingdomsSampleBot
 ```bash
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-# veya
-venv\Scripts\activate  # Windows
 ```
 
 3. **Bağımlılıkları yükleyin:**
@@ -102,7 +136,12 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-4. **Yapılandırmayı düzenleyin:**
+4. **Gerekli klasörleri oluşturun:**
+```bash
+mkdir -p logs data
+```
+
+5. **Yapılandırmayı düzenleyin:**
 ```bash
 # config/settings.py dosyasını ihtiyaçlarınıza göre düzenleyin
 ```
@@ -110,6 +149,65 @@ pip install -r requirements.txt
 ## ⚙️ Yapılandırma
 
 Tüm ayarlar `config/settings.py` dosyasında bulunur:
+
+### Gerçek Oyun Entegrasyonu Ayarları
+
+```python
+# Gerçek oyun entegrasyonu için ayarlar
+GameIntegrationSettings.SIMULATION_MODE = False  # Gerçek oyunu kullanmak için False yapın
+GameIntegrationSettings.GAME_SERVER_URL = "https://game.leagueofkingdoms.com"
+GameIntegrationSettings.AUTH_TOKEN = "your_auth_token_here"
+GameIntegrationSettings.USER_ID = "your_user_id"
+
+# Entegrasyon yöntemi seçin
+GameIntegrationSettings.AUTOMATION_METHOD = "api"  # "api", "screen", veya "hybrid"
+GameIntegrationSettings.USE_API = True  # API kullanımı
+
+# Ekran görüntü tabanlı entegrasyon için (opsiyonel)
+GameIntegrationSettings.USE_SCREEN_CAPTURE = False
+GameIntegrationSettings.OCR_ENABLED = False
+```
+
+**Önemli:** Gerçek oyun entegrasyonu için `SIMULATION_MODE = False` yapın ve gerekli kimlik doğrulama bilgilerini girin.
+
+## 🎮 Gerçek Oyun Entegrasyonu
+
+Bot'u gerçek League of Kingdoms oyunuyla entegre etmek için detaylı kılavuz:
+
+**📘 [GAME_INTEGRATION.md](GAME_INTEGRATION.md) - Tam Entegrasyon Kılavuzu**
+
+Bu kılavuz şunları içerir:
+- API tabanlı entegrasyon adımları
+- Ekran görüntü tabanlı entegrasyon
+- Kimlik doğrulama yapılandırması
+- Discord ve Telegram bildirim kurulumu
+- Test ve sorun giderme
+- Güvenlik en iyi uygulamaları
+
+### Hızlı Başlangıç
+
+1. **Simülasyon modunu kapatın:**
+```python
+GameIntegrationSettings.SIMULATION_MODE = False
+```
+
+2. **Entegrasyon yöntemini seçin:**
+```python
+GameIntegrationSettings.AUTOMATION_METHOD = "api"  # veya "screen" veya "hybrid"
+```
+
+3. **Kimlik bilgilerini girin:**
+```python
+GameIntegrationSettings.AUTH_TOKEN = "your_token_here"
+GameIntegrationSettings.USER_ID = "your_user_id"
+```
+
+4. **Test edin:**
+```bash
+start.bat --dry-run --debug --max-time 30 --no-confirm
+```
+
+Detaylı talimatlar için [GAME_INTEGRATION.md](GAME_INTEGRATION.md) dosyasına bakın.
 
 ### Temel Ayarlar
 
@@ -154,6 +252,24 @@ SecuritySettings.MAX_RANDOM_DELAY = 2.0  # saniye
 ```
 
 ## 📖 Kullanım
+
+### Windows Kullanıcıları için Hızlı Komutlar
+
+Windows kullanıcıları için hazır batch dosyaları:
+
+```bash
+# Test modu (güvenli, gerçek toplama yapmaz)
+start.bat --dry-run --debug --max-time 30 --no-confirm
+
+# Sadece tespit et, toplama (kristalleri bul ama toplama)
+start.bat --no-auto-collect --levels 3 4 5
+
+# Normal mod (tam otomatik)
+start.bat --levels 4 5
+
+# Belirli bir süre çalıştır (örn. 1 saat)
+start.bat --max-time 3600
+```
 
 ### Basit Kullanım
 

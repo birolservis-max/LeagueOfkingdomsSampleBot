@@ -143,6 +143,49 @@ class BotSettings:
     SESSION_FILE: str = "data/session.json"  # Oturum dosyası
 
 
+# Gerçek Oyun Entegrasyon Ayarları
+class GameIntegrationSettings:
+    """Gerçek League of Kingdoms oyunu entegrasyon ayarları."""
+    
+    # Oyun Bağlantı Ayarları
+    GAME_SERVER_URL: str = ""  # Oyun sunucu URL'i (örn: "https://game.leagueofkingdoms.com")
+    API_ENDPOINT: str = ""  # API endpoint (örn: "/api/v1")
+    USE_API: bool = False  # API kullanımı açık/kapalı
+    
+    # Kimlik Doğrulama
+    AUTH_TOKEN: str = ""  # Oyun kimlik doğrulama token'ı
+    USER_ID: str = ""  # Kullanıcı ID
+    SESSION_ID: str = ""  # Oturum ID
+    
+    # Ekran Görüntü Ayarları (OCR/Image Recognition için)
+    USE_SCREEN_CAPTURE: bool = False  # Ekran yakalama kullan
+    SCREEN_REGION: tuple = (0, 0, 1920, 1080)  # Yakalama bölgesi (x, y, width, height)
+    OCR_ENABLED: bool = False  # OCR (Optik Karakter Tanıma) kullan
+    IMAGE_RECOGNITION: bool = False  # Görüntü tanıma kullan
+    
+    # Oyun Etkileşim Ayarları
+    USE_MOUSE_CONTROL: bool = False  # Fare kontrolü kullan
+    USE_KEYBOARD_CONTROL: bool = False  # Klavye kontrolü kullan
+    AUTOMATION_METHOD: str = "api"  # "api", "screen", "hybrid"
+    
+    # Bağlantı Ayarları
+    CONNECTION_TIMEOUT: int = 30  # Bağlantı zaman aşımı (saniye)
+    REQUEST_RETRY_COUNT: int = 3  # Başarısız istek tekrar sayısı
+    RETRY_DELAY: float = 2.0  # Tekrar denemeler arası bekleme (saniye)
+    
+    # Senkronizasyon
+    SYNC_INTERVAL: float = 5.0  # Oyun durumu senkronizasyon aralığı (saniye)
+    AUTO_SYNC: bool = True  # Otomatik senkronizasyon
+    
+    # Simülasyon Modu (Gerçek oyun yerine simülasyon)
+    SIMULATION_MODE: bool = True  # True = Simülasyon, False = Gerçek oyun
+    
+    # Güvenlik Kontrolleri
+    VERIFY_SSL: bool = True  # SSL sertifika doğrulama
+    ENABLE_PROXY: bool = False  # Proxy kullanımı
+    PROXY_URL: str = ""  # Proxy URL (örn: "http://proxy.example.com:8080")
+
+
 # Performans Ayarları
 class PerformanceSettings:
     """Performans ve optimizasyon ayarları."""
