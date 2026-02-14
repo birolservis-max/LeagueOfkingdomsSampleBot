@@ -2,7 +2,61 @@
 
 League of Kingdoms Crystal Bot'u kullanmaya başlamak için bu kılavuzu takip edin.
 
-## 1. Kurulum
+## 🪟 Windows Kullanıcıları için (Önerilen)
+
+## 🐧 Linux/Mac Kullanıcıları için
+
+### 1. Kurulum
+
+```bash
+# Depoyu klonlayın
+git clone https://github.com/birolservis-max/LeagueOfkingdomsSampleBot.git
+cd LeagueOfkingdomsSampleBot
+
+# Otomatik kurulum
+setup.bat
+```
+
+### 2. Test Etme
+
+```bash
+# Test modunda bot'u çalıştırın (30 saniye, güvenli)
+start.bat --dry-run --debug --max-time 30 --no-confirm
+
+# Sadece tespit et, toplama
+start.bat --no-auto-collect --max-time 60
+```
+
+### 3. Yapılandırma
+
+`config/settings.py` dosyasını düzenleyin:
+
+```python
+# Gerçek oyun için simülasyonu kapatın
+GameIntegrationSettings.SIMULATION_MODE = False
+
+# Hedef kristal seviyeleri
+FilterSettings.TARGET_LEVELS = [4, 5]  # Sadece yüksek seviye
+
+# Bildirimler
+NotificationSettings.DISCORD_ENABLED = True
+NotificationSettings.DISCORD_WEBHOOK_URL = "your_webhook_url"
+```
+
+### 4. Kullanım
+
+```bash
+# Normal mod
+start.bat
+
+# Belirli seviyeler için
+start.bat --levels 4 5
+
+# 1 saat çalıştır
+start.bat --max-time 3600
+```
+
+## 🐧 Linux/Mac Kullanıcıları için
 
 ```bash
 # Depoyu klonlayın

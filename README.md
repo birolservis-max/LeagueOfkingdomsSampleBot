@@ -9,6 +9,7 @@ League of Kingdoms oyunu için geliştirilmiş Python tabanlı kristal tespit ve
 - [Proje Yapısı](#proje-yapısı)
 - [Kurulum](#kurulum)
 - [Yapılandırma](#yapılandırma)
+- [Gerçek Oyun Entegrasyonu](#gerçek-oyun-entegrasyonu)
 - [Kullanım](#kullanım)
 - [Modüller](#modüller)
 - [Test](#test)
@@ -169,6 +170,45 @@ GameIntegrationSettings.OCR_ENABLED = False
 
 **Önemli:** Gerçek oyun entegrasyonu için `SIMULATION_MODE = False` yapın ve gerekli kimlik doğrulama bilgilerini girin.
 
+## 🎮 Gerçek Oyun Entegrasyonu
+
+Bot'u gerçek League of Kingdoms oyunuyla entegre etmek için detaylı kılavuz:
+
+**📘 [GAME_INTEGRATION.md](GAME_INTEGRATION.md) - Tam Entegrasyon Kılavuzu**
+
+Bu kılavuz şunları içerir:
+- API tabanlı entegrasyon adımları
+- Ekran görüntü tabanlı entegrasyon
+- Kimlik doğrulama yapılandırması
+- Discord ve Telegram bildirim kurulumu
+- Test ve sorun giderme
+- Güvenlik en iyi uygulamaları
+
+### Hızlı Başlangıç
+
+1. **Simülasyon modunu kapatın:**
+```python
+GameIntegrationSettings.SIMULATION_MODE = False
+```
+
+2. **Entegrasyon yöntemini seçin:**
+```python
+GameIntegrationSettings.AUTOMATION_METHOD = "api"  # veya "screen" veya "hybrid"
+```
+
+3. **Kimlik bilgilerini girin:**
+```python
+GameIntegrationSettings.AUTH_TOKEN = "your_token_here"
+GameIntegrationSettings.USER_ID = "your_user_id"
+```
+
+4. **Test edin:**
+```bash
+start.bat --dry-run --debug --max-time 30 --no-confirm
+```
+
+Detaylı talimatlar için [GAME_INTEGRATION.md](GAME_INTEGRATION.md) dosyasına bakın.
+
 ### Temel Ayarlar
 
 ```python
@@ -212,6 +252,24 @@ SecuritySettings.MAX_RANDOM_DELAY = 2.0  # saniye
 ```
 
 ## 📖 Kullanım
+
+### Windows Kullanıcıları için Hızlı Komutlar
+
+Windows kullanıcıları için hazır batch dosyaları:
+
+```bash
+# Test modu (güvenli, gerçek toplama yapmaz)
+start.bat --dry-run --debug --max-time 30 --no-confirm
+
+# Sadece tespit et, toplama (kristalleri bul ama toplama)
+start.bat --no-auto-collect --levels 3 4 5
+
+# Normal mod (tam otomatik)
+start.bat --levels 4 5
+
+# Belirli bir süre çalıştır (örn. 1 saat)
+start.bat --max-time 3600
+```
 
 ### Basit Kullanım
 
