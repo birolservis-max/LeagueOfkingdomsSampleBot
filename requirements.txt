@@ -1,0 +1,28 @@
+# League of Kingdoms Crystal Bot - Gerekli Python Paketleri
+
+# Temel Bağımlılıklar
+python-dateutil>=2.8.2
+
+# HTTP İstekleri (Discord/Telegram webhook için)
+requests>=2.31.0
+
+# Test Framework
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+
+# Type Checking
+mypy>=1.5.0
+
+# Linting
+flake8>=6.1.0
+black>=23.7.0
+
+# Logging Enhancement (opsiyonel)
+colorlog>=6.7.0
+
+# Async Support (opsiyonel)
+asyncio>=3.4.3
+
+# Development Tools
+ipython>=8.14.0
