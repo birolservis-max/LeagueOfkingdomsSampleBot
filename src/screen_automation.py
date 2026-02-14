@@ -123,7 +123,9 @@ class ScreenAutomation:
             }
             
             screenshot = self.sct.grab(monitor)
-            img = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+            # Convert screenshot to PIL Image
+            # mss returns RGB data in bgra attribute
+            img = Image.frombytes("RGB", screenshot.size, screenshot.rgb, "raw", "RGB")
             
             self.logger.debug(f"Ekran görüntüsü alındı: {region}")
             return img

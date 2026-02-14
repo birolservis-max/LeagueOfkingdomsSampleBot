@@ -18,7 +18,7 @@ from config.settings import (
     GameIntegrationSettings
 )
 from src.map_scanner import MapScanner
-from src.crystal_detector import CrystalDetector
+from src.crystal_detector import CrystalDetector, Crystal
 from src.crystal_collector import CrystalCollector
 from src.notifier import Notifier
 from src.utils import (
@@ -290,13 +290,13 @@ class CrystalBot:
                 self.logger.info("Ekranda kristal bulunamadı, harita kaydırılıyor...")
                 # Haritayı rastgele bir yöne kaydır
                 import random
+                import math
                 region = self.screen.get_game_region()
                 if region:
                     x, y, w, h = region
                     center_x, center_y = x + w // 2, y + h // 2
                     # Rastgele yön
-                    angle = random.uniform(0, 2 * 3.14159)
-                    import math
+                    angle = random.uniform(0, 2 * math.pi)
                     offset = 100
                     target_x = center_x + int(offset * math.cos(angle))
                     target_y = center_y + int(offset * math.sin(angle))
@@ -325,15 +325,18 @@ class CrystalBot:
                 for i, crystal_info in enumerate(detected_crystals[:max_collect]):
                     self.logger.info(f"İlerleme: {i+1}/{max_collect}")
                     
-                    # Kristal objesi oluştur (basit)
-                    class Crystal:
-                        def __init__(self, level, position):
-                            self.level = level
-                            self.position = (0, 0)  # Oyun koordinatı
-                            self.screen_position = position  # Ekran koordinatı
-                            self.collected = False
-                    
-                    crystal = Crystal(crystal_info['level'], crystal_info['position'])
+                    # Crystal objesi oluştur (imported from crystal_detector)
+                    crystal = Crystal(
+                        position=(0, 0),  # Oyun koordinatı
+                        level=crystal_info['level'],
+                        name=f"Seviye {crystal_info['level']} Kristal",
+                        color=crystal_info.get('color', 'Unknown'),
+                        terrain_level=0,
+                        detected_at=time.time(),
+                        collected=False
+                    )
+                    # Ekran pozisyonunu ekle
+                    crystal.screen_position = crystal_info['position']
                     
                     # Kristali topla
                     if self.collector.collect_crystal(crystal):

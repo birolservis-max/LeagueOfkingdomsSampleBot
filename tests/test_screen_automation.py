@@ -119,15 +119,15 @@ class TestModuleIntegration(unittest.TestCase):
     
     def test_modules_can_be_imported(self):
         """Tüm modüllerin import edilebilirliği testi."""
-        try:
-            from src.screen_automation import ScreenAutomation
-            from src.image_detector import ImageDetector
-            from src.game_navigator import GameNavigator
-            
-            # Import başarılı
-            self.assertTrue(True)
-        except ImportError as e:
-            self.fail(f"Modül import hatası: {e}")
+        # Test sadece import başarısını kontrol eder
+        from src.screen_automation import ScreenAutomation
+        from src.image_detector import ImageDetector
+        from src.game_navigator import GameNavigator
+        
+        # Import başarılı - sınıflar tanımlı mı kontrol et
+        self.assertIsNotNone(ScreenAutomation)
+        self.assertIsNotNone(ImageDetector)
+        self.assertIsNotNone(GameNavigator)
     
     def test_crystal_collector_accepts_screen_automation(self):
         """CrystalCollector'ın screen automation parametrelerini kabul etmesi testi."""
