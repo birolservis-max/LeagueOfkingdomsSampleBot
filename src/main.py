@@ -99,6 +99,12 @@ def parse_arguments():
         help=f"Maksimum çalışma süresi (saniye, 0 = sınırsız) (varsayılan: {BotSettings.MAX_RUN_TIME})"
     )
     
+    parser.add_argument(
+        "--no-confirm",
+        action="store_true",
+        help="Başlatma onayı sorma (otomasyon için)"
+    )
+    
     return parser.parse_args()
 
 
@@ -177,14 +183,17 @@ def main():
     print_configuration(args)
     
     # Onay al
-    try:
-        response = input("Bot'u başlatmak istiyor musunuz? (E/H): ").strip().lower()
-        if response not in ['e', 'evet', 'y', 'yes']:
-            print("Bot başlatılmadı.")
+    if not args.no_confirm:
+        try:
+            response = input("Bot'u başlatmak istiyor musunuz? (E/H): ").strip().lower()
+            if response not in ['e', 'evet', 'y', 'yes']:
+                print("Bot başlatılmadı.")
+                return
+        except (KeyboardInterrupt, EOFError):
+            print("\nİptal edildi.")
             return
-    except KeyboardInterrupt:
-        print("\nİptal edildi.")
-        return
+    else:
+        print("Otomatik mod: Bot doğrudan başlatılıyor...")
     
     print("\nBot başlatılıyor...\n")
     

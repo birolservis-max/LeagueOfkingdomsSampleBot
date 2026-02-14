@@ -36,7 +36,9 @@ echo Bot baslatilacak...
 echo.
 echo UYARI: 
 echo - Oyun ayarlarini config/settings.py dosyasindan kontrol edin
-echo - Ilk kez kullaniyorsaniz test modu ile baslatin: start.bat --dry-run
+echo - Ilk kez kullaniyorsaniz test modu ile baslatin:
+echo     start.bat --dry-run --debug --max-time 30 --no-confirm
+echo - Otomatik mod icin --no-confirm parametresini kullanin
 echo.
 
 REM Parametreler varsa direkt baslat, yoksa kullaniciya sor
