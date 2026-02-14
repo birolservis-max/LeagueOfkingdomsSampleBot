@@ -10,7 +10,8 @@ import time
 from config.settings import (
     CollectorSettings,
     SecuritySettings,
-    BotSettings
+    BotSettings,
+    GameIntegrationSettings
 )
 from src.utils import random_delay, format_coordinates
 
@@ -26,7 +27,9 @@ class CrystalCollector:
     def __init__(
         self,
         auto_collect: bool = CollectorSettings.AUTO_COLLECT,
-        dry_run: bool = BotSettings.DRY_RUN
+        dry_run: bool = BotSettings.DRY_RUN,
+        screen_automation=None,
+        game_navigator=None
     ):
         """
         CrystalCollector başlatıcı.
@@ -34,10 +37,16 @@ class CrystalCollector:
         Args:
             auto_collect: Otomatik toplama aktif mi
             dry_run: Test modu (gerçekten toplama yapmaz)
+            screen_automation: ScreenAutomation nesnesi (ekran otomasyonu için)
+            game_navigator: GameNavigator nesnesi (navigasyon için)
         """
         self.logger = logging.getLogger("CrystalBot.CrystalCollector")
         self.auto_collect = auto_collect
         self.dry_run = dry_run
+        
+        # Ekran otomasyonu modülleri
+        self.screen = screen_automation
+        self.navigator = game_navigator
         
         # İstatistikler
         self.total_collected = 0
@@ -47,7 +56,8 @@ class CrystalCollector:
         
         self.logger.info(
             f"CrystalCollector başlatıldı - Otomatik: {auto_collect}, "
-            f"Test Modu: {dry_run}"
+            f"Test Modu: {dry_run}, "
+            f"Ekran Otomasyonu: {screen_automation is not None}"
         )
     
     def collect_crystal(self, crystal) -> bool:
@@ -133,11 +143,42 @@ class CrystalCollector:
         Returns:
             bool: Başarılı ise True
         """
-        # Simülasyon için basit bir gecikme ve %90 başarı oranı
-        time.sleep(CollectorSettings.COLLECT_DELAY)
+        # Ekran otomasyonu modunda
+        if (GameIntegrationSettings.AUTOMATION_METHOD == "screen" and 
+            self.screen and self.navigator and not GameIntegrationSettings.SIMULATION_MODE):
+            
+            try:
+                self.logger.info(f"Ekran otomasyonu ile kristal toplanıyor: {crystal}")
+                
+                # Kristale git ve tıkla
+                if hasattr(crystal, 'screen_position'):
+                    success = self.navigator.navigate_to_crystal(
+                        crystal.screen_position,
+                        click_to_collect=True
+                    )
+                    
+                    if success:
+                        # Toplama animasyonunu bekle
+                        time.sleep(CollectorSettings.COLLECT_DELAY)
+                        return True
+                    else:
+                        self.logger.warning("Kristale gidilemedi")
+                        return False
+                else:
+                    self.logger.warning("Kristal ekran pozisyonu bulunamadı")
+                    return False
+                    
+            except Exception as e:
+                self.logger.error(f"Ekran otomasyonu toplama hatası: {e}")
+                return False
         
-        import random
-        return random.random() > 0.1  # %90 başarı şansı
+        # Simülasyon modu veya API modu
+        else:
+            # Simülasyon için basit bir gecikme ve %90 başarı oranı
+            time.sleep(CollectorSettings.COLLECT_DELAY)
+            
+            import random
+            return random.random() > 0.1  # %90 başarı şansı
     
     def collect_multiple(
         self,

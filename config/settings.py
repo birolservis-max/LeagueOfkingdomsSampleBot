@@ -158,15 +158,29 @@ class GameIntegrationSettings:
     SESSION_ID: str = ""  # Oturum ID
     
     # Ekran Görüntü Ayarları (OCR/Image Recognition için)
-    USE_SCREEN_CAPTURE: bool = False  # Ekran yakalama kullan
+    USE_SCREEN_CAPTURE: bool = True  # Ekran yakalama kullan
     SCREEN_REGION: tuple = (0, 0, 1920, 1080)  # Yakalama bölgesi (x, y, width, height)
     OCR_ENABLED: bool = False  # OCR (Optik Karakter Tanıma) kullan
-    IMAGE_RECOGNITION: bool = False  # Görüntü tanıma kullan
+    IMAGE_RECOGNITION: bool = True  # Görüntü tanıma kullan
     
     # Oyun Etkileşim Ayarları
-    USE_MOUSE_CONTROL: bool = False  # Fare kontrolü kullan
+    USE_MOUSE_CONTROL: bool = True  # Fare kontrolü kullan
     USE_KEYBOARD_CONTROL: bool = False  # Klavye kontrolü kullan
-    AUTOMATION_METHOD: str = "api"  # "api", "screen", "hybrid"
+    AUTOMATION_METHOD: str = "screen"  # "api", "screen", "hybrid"
+    
+    # Oyun Penceresi Ayarları
+    GAME_WINDOW_TITLE: str = "League of Kingdoms"  # Oyun pencere başlığı
+    AUTO_FOCUS_WINDOW: bool = True  # Pencereyi otomatik aktif et
+    
+    # Hareket ve Navigasyon Ayarları
+    HUMAN_LIKE_MOVEMENT: bool = True  # İnsan benzeri fare hareketi
+    MOVEMENT_SPEED: float = 0.5  # Fare hareket hızı (0.1-2.0)
+    CLICK_DELAY: float = 0.2  # Tıklamalar arası gecikme (saniye)
+    
+    # Kristal Tespit Ayarları
+    CRYSTAL_MIN_AREA: int = 50  # Minimum kristal alanı (pixel)
+    CRYSTAL_MAX_AREA: int = 5000  # Maksimum kristal alanı (pixel)
+    DETECTION_CONFIDENCE: float = 0.6  # Tespit güven eşiği (0-1)
     
     # Bağlantı Ayarları
     CONNECTION_TIMEOUT: int = 30  # Bağlantı zaman aşımı (saniye)
