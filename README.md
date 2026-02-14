@@ -23,6 +23,8 @@ League of Kingdoms oyunu için geliştirilmiş Python tabanlı kristal tespit ve
 - 🗺️ **Akıllı Harita Taraması**: Spiral, grid veya rastgele tarama desenleri
 - 🎯 **Arazi Seviye Analizi**: Yüksek seviye arazilerde yüksek seviye kristaller arar
 - 🤖 **Otomatik Toplama**: Tespit edilen kristalleri otomatik olarak toplar
+- 🖱️ **Ekran Otomasyonu**: Gerçek oyun penceresinde insan benzeri fare hareketleri ile kristal toplama
+- 🎮 **Oyun İçi Navigasyon**: Bot sanki insan oynuyormuş gibi oyun haritasında gezinir
 - 🔔 **Bildirim Sistemi**: Konsol, dosya, Discord ve Telegram desteği
 - 📈 **Detaylı İstatistikler**: Toplama başarı oranı, seviye dağılımı ve daha fazlası
 - ⚙️ **Esnek Yapılandırma**: Tüm ayarlar özelleştirilebilir
@@ -152,23 +154,43 @@ Tüm ayarlar `config/settings.py` dosyasında bulunur:
 
 ### Gerçek Oyun Entegrasyonu Ayarları
 
+#### Ekran Otomasyonu Modu (Önerilen - API Gerektirmez)
+
+Bot'u ekran otomasyonu ile kullanmak için:
+
 ```python
 # Gerçek oyun entegrasyonu için ayarlar
 GameIntegrationSettings.SIMULATION_MODE = False  # Gerçek oyunu kullanmak için False yapın
+GameIntegrationSettings.AUTOMATION_METHOD = "screen"  # Ekran otomasyonu modu
+
+# Ekran görüntü tabanlı entegrasyon
+GameIntegrationSettings.USE_SCREEN_CAPTURE = True
+GameIntegrationSettings.IMAGE_RECOGNITION = True
+GameIntegrationSettings.USE_MOUSE_CONTROL = True
+
+# Oyun penceresi ayarları
+GameIntegrationSettings.GAME_WINDOW_TITLE = "League of Kingdoms"  # Oyun pencere başlığı
+GameIntegrationSettings.HUMAN_LIKE_MOVEMENT = True  # İnsan benzeri hareket
+```
+
+**Kullanım Adımları:**
+1. League of Kingdoms oyununu açın
+2. Oyun penceresinin başlığında "League of Kingdoms" olduğundan emin olun
+3. Bot'u başlatın - bot otomatik olarak oyun penceresini bulacak
+4. Bot sanki insan oynuyormuş gibi haritada gezinecek ve kristalleri toplayacak
+
+#### API Tabanlı Mod (Alternatif)
+
+```python
+GameIntegrationSettings.SIMULATION_MODE = False
+GameIntegrationSettings.AUTOMATION_METHOD = "api"  # "api", "screen", veya "hybrid"
+GameIntegrationSettings.USE_API = True  # API kullanımı
 GameIntegrationSettings.GAME_SERVER_URL = "https://game.leagueofkingdoms.com"
 GameIntegrationSettings.AUTH_TOKEN = "your_auth_token_here"
 GameIntegrationSettings.USER_ID = "your_user_id"
-
-# Entegrasyon yöntemi seçin
-GameIntegrationSettings.AUTOMATION_METHOD = "api"  # "api", "screen", veya "hybrid"
-GameIntegrationSettings.USE_API = True  # API kullanımı
-
-# Ekran görüntü tabanlı entegrasyon için (opsiyonel)
-GameIntegrationSettings.USE_SCREEN_CAPTURE = False
-GameIntegrationSettings.OCR_ENABLED = False
 ```
 
-**Önemli:** Gerçek oyun entegrasyonu için `SIMULATION_MODE = False` yapın ve gerekli kimlik doğrulama bilgilerini girin.
+**Önemli:** Gerçek oyun entegrasyonu için `SIMULATION_MODE = False` yapın.
 
 ## 🎮 Gerçek Oyun Entegrasyonu
 
@@ -177,35 +199,46 @@ Bot'u gerçek League of Kingdoms oyunuyla entegre etmek için detaylı kılavuz:
 **📘 [GAME_INTEGRATION.md](GAME_INTEGRATION.md) - Tam Entegrasyon Kılavuzu**
 
 Bu kılavuz şunları içerir:
+- **Ekran otomasyonu tabanlı entegrasyon** (API gerektirmez - Önerilen)
 - API tabanlı entegrasyon adımları
-- Ekran görüntü tabanlı entegrasyon
 - Kimlik doğrulama yapılandırması
 - Discord ve Telegram bildirim kurulumu
 - Test ve sorun giderme
 - Güvenlik en iyi uygulamaları
 
-### Hızlı Başlangıç
+### Hızlı Başlangıç - Ekran Otomasyonu
 
-1. **Simülasyon modunu kapatın:**
+1. **Oyunu açın:**
+   - League of Kingdoms oyununu açın
+   - Pencere başlığının "League of Kingdoms" içermesine dikkat edin
+
+2. **Simülasyon modunu kapatın:**
 ```python
 GameIntegrationSettings.SIMULATION_MODE = False
 ```
 
-2. **Entegrasyon yöntemini seçin:**
+3. **Ekran otomasyonu modunu aktif edin:**
 ```python
-GameIntegrationSettings.AUTOMATION_METHOD = "api"  # veya "screen" veya "hybrid"
+GameIntegrationSettings.AUTOMATION_METHOD = "screen"
+GameIntegrationSettings.USE_SCREEN_CAPTURE = True
+GameIntegrationSettings.IMAGE_RECOGNITION = True
+GameIntegrationSettings.USE_MOUSE_CONTROL = True
 ```
 
-3. **Kimlik bilgilerini girin:**
-```python
-GameIntegrationSettings.AUTH_TOKEN = "your_token_here"
-GameIntegrationSettings.USER_ID = "your_user_id"
-```
-
-4. **Test edin:**
+4. **Bot'u başlatın:**
 ```bash
-start.bat --dry-run --debug --max-time 30 --no-confirm
+# Windows
+start.bat
+
+# Linux/Mac
+python src/main.py
 ```
+
+Bot otomatik olarak:
+- Oyun penceresini bulacak
+- Ekranda kristalleri tespit edecek
+- Haritada gezinerek kristallere gidecek
+- İnsan benzeri hareketlerle kristalleri toplayacak
 
 Detaylı talimatlar için [GAME_INTEGRATION.md](GAME_INTEGRATION.md) dosyasına bakın.
 
@@ -351,12 +384,48 @@ Tespit edilen kristalleri otomatik olarak toplar.
 
 **Özellikler:**
 - Otomatik toplama
+- Ekran otomasyonu ile gerçek oyunda toplama
 - Seviye bazlı filtreleme
 - Toplama önceliklendirme
 - Başarısız toplamada tekrar deneme
 - Toplama istatistikleri
 
-### 4. Notifier (Bildirimci)
+### 4. ScreenAutomation (Ekran Otomasyonu) - YENİ! 🆕
+
+Oyun ekranı ile etkileşim sağlar.
+
+**Özellikler:**
+- Oyun penceresi tespit etme
+- Ekran görüntüsü alma
+- İnsan benzeri fare hareketi
+- Fare tıklama ve sürükleme
+- Klavye tuş basma
+- Piksel renk analizi
+
+### 5. ImageDetector (Görüntü Dedektörü) - YENİ! 🆕
+
+Ekran görüntüsünden kristalleri tespit eder.
+
+**Özellikler:**
+- Renk bazlı kristal tespiti
+- Seviye belirleme (beyaz, yeşil, mavi, mor, altın)
+- Şablon eşleştirme
+- Güven skoru hesaplama
+- Tespit edilen kristalleri işaretleme
+
+### 6. GameNavigator (Oyun Navigatörü) - YENİ! 🆕
+
+Oyun haritasında gezinme sağlar.
+
+**Özellikler:**
+- Harita kalibrasyonu
+- Kristal pozisyonuna gitme
+- İnsan benzeri harita kaydırma
+- Spiral ve grid tarama desenleri
+- Zoom kontrolleri
+- Pozisyon takibi
+
+### 7. Notifier (Bildirimci)
 
 Kristal tespit ve toplama olaylarını bildirir.
 
@@ -367,11 +436,19 @@ Kristal tespit ve toplama olaylarını bildirir.
 - Telegram bot desteği
 - Özelleştirilebilir bildirim formatı
 
-### 5. CrystalBot (Ana Orkestratör)
+### 8. CrystalBot (Ana Orkestratör)
 
 Tüm modülleri koordine eder ve yönetir.
 
-**İş Akışı:**
+**İş Akışı (Ekran Otomasyonu Modu):**
+1. **Pencere Tespiti**: Oyun penceresini bul ve aktif et
+2. **Ekran Yakalama**: Oyun ekranının görüntüsünü al
+3. **Kristal Tespiti**: Görüntüde kristalleri tespit et
+4. **Navigasyon**: Kristallere insan benzeri hareketlerle git
+5. **Toplama**: Fare tıklamasıyla kristalleri topla
+6. **Tekrar**: Döngüyü tekrarla
+
+**İş Akışı (Simülasyon/API Modu):**
 1. **Tarama**: Haritayı sistematik olarak tara
 2. **Tespit**: Kristalleri tespit et ve seviyelerini belirle
 3. **Filtreleme**: İstenilen kristalleri filtrele ve önceliklendir

@@ -8,15 +8,16 @@ Bu kılavuz, League of Kingdoms Crystal Bot'u gerçek oyunla entegre etmek için
 - [Kurulum](#kurulum)
 - [Yapılandırma](#yapılandırma)
 - [Entegrasyon Yöntemleri](#entegrasyon-yöntemleri)
+- [Ekran Otomasyonu ile Kullanım](#ekran-otomasyonu-ile-kullanım)
 - [Test](#test)
 - [Sorun Giderme](#sorun-giderme)
 
 ## 🎯 Genel Bakış
 
-Bu bot, League of Kingdoms oyununda kristalleri otomatik olarak tespit etmek ve bildirmek için tasarlanmıştır. Gerçek oyunla entegre edilebilmesi için üç farklı yöntem sunar:
+Bu bot, League of Kingdoms oyununda kristalleri otomatik olarak tespit etmek ve toplamak için tasarlanmıştır. Gerçek oyunla entegre edilebilmesi için üç farklı yöntem sunar:
 
-1. **API Tabanlı Entegrasyon** - Oyunun API'sini kullanarak (önerilen)
-2. **Ekran Görüntü Tabanlı** - OCR ve görüntü tanıma ile
+1. **Ekran Otomasyonu (Screen-Based)** - Ekran görüntüsü analizi ve fare kontrolü (API gerektirmez, önerilen)
+2. **API Tabanlı Entegrasyon** - Oyunun API'sini kullanarak
 3. **Hibrit Yöntem** - Her ikisinin kombinasyonu
 
 ## 🚀 Kurulum
@@ -42,15 +43,16 @@ mkdir -p logs data
 
 Bot zaten temel işlevsellik için gerekli paketleri içerir. Ancak, farklı entegrasyon yöntemleri için ek paketlere ihtiyacınız olabilir:
 
+#### Ekran Otomasyonu için (Önerilen)
+```bash
+pip install pyautogui pillow opencv-python pytesseract pygetwindow mss
+# Zaten requirements.txt'de mevcut - setup.bat otomatik yükler
+```
+
 #### API Entegrasyonu için
 ```bash
 pip install requests
 # Zaten requirements.txt'de mevcut
-```
-
-#### Ekran Görüntü Entegrasyonu için (Opsiyonel)
-```bash
-pip install pillow pytesseract opencv-python pyautogui
 ```
 
 ## ⚙️ Yapılandırma
@@ -84,9 +86,82 @@ class GameIntegrationSettings:
 
 ## 🔧 Entegrasyon Yöntemleri
 
-### Yöntem 1: API Tabanlı Entegrasyon (Önerilen)
+### Yöntem 1: Ekran Otomasyonu (Önerilen - API Gerektirmez) 🆕
 
-API tabanlı entegrasyon, oyunun resmi API'sini kullanarak en güvenilir yöntemdir.
+**Bu yöntem API gerektirmez ve oyunu manuel olarak açarak kullanabilirsiniz!**
+
+Ekran otomasyonu, oyun ekranını analiz ederek kristalleri tespit eder ve fare kontrolü ile sanki insan oynuyormuş gibi kristalleri toplar.
+
+#### Avantajlar:
+- ✅ API token'a gerek yok
+- ✅ Oyunu manuel açmanız yeterli
+- ✅ İnsan benzeri davranış
+- ✅ Kolay kurulum
+- ✅ Gerçek oyun deneyimi
+
+#### Yapılandırma:
+
+```python
+# config/settings.py
+class GameIntegrationSettings:
+    # Simülasyon modunu kapat
+    SIMULATION_MODE = False
+    
+    # Ekran otomasyonu modunu aktif et
+    AUTOMATION_METHOD = "screen"
+    
+    # Ekran yakalama ayarları
+    USE_SCREEN_CAPTURE = True
+    IMAGE_RECOGNITION = True
+    
+    # Fare kontrolü
+    USE_MOUSE_CONTROL = True
+    HUMAN_LIKE_MOVEMENT = True  # İnsan benzeri hareket
+    MOVEMENT_SPEED = 0.5  # Hareket hızı
+    
+    # Oyun penceresi
+    GAME_WINDOW_TITLE = "League of Kingdoms"
+    AUTO_FOCUS_WINDOW = True
+    
+    # Kristal tespit ayarları
+    CRYSTAL_MIN_AREA = 50
+    CRYSTAL_MAX_AREA = 5000
+    DETECTION_CONFIDENCE = 0.6
+```
+
+#### Kullanım Adımları:
+
+1. **Oyunu Açın:**
+   ```
+   League of Kingdoms oyununu tarayıcıda veya uygulamada açın
+   Pencere başlığında "League of Kingdoms" olduğundan emin olun
+   ```
+
+2. **Ayarları Yapın:**
+   ```python
+   # config/settings.py dosyasını düzenleyin
+   GameIntegrationSettings.SIMULATION_MODE = False
+   GameIntegrationSettings.AUTOMATION_METHOD = "screen"
+   ```
+
+3. **Bot'u Başlatın:**
+   ```bash
+   # Windows
+   start.bat
+   
+   # Linux/Mac
+   python src/main.py
+   ```
+
+4. **Bot Otomatik Olarak:**
+   - Oyun penceresini bulacak
+   - Ekranda kristalleri tespit edecek
+   - Haritada insan gibi gezinecek
+   - Kristallere tıklayarak toplayacak
+
+### Yöntem 2: API Tabanlı Entegrasyon
+
+API tabanlı entegrasyon, oyunun resmi API'sini kullanır. (Token gerektirir)
 
 #### Yapılandırma:
 
@@ -118,44 +193,9 @@ class GameIntegrationSettings:
 4. Oyun içi bir aksiyon yapın
 5. İstekleri inceleyin ve Authorization header'ında token'ı bulun
 
-### Yöntem 2: Ekran Görüntü Tabanlı Entegrasyon
-
-Bu yöntem ekran görüntüsü analizi ve OCR kullanır.
-
-#### Ek Paket Kurulumu:
-
-```bash
-pip install pillow pytesseract opencv-python pyautogui
-```
-
-#### Yapılandırma:
-
-```python
-class GameIntegrationSettings:
-    SIMULATION_MODE = False
-    USE_API = False
-    AUTOMATION_METHOD = "screen"
-    
-    # Ekran yakalama ayarları
-    USE_SCREEN_CAPTURE = True
-    SCREEN_REGION = (0, 0, 1920, 1080)  # Oyun pencere boyutu
-    OCR_ENABLED = True
-    IMAGE_RECOGNITION = True
-    
-    # Fare/Klavye kontrolü
-    USE_MOUSE_CONTROL = True
-    USE_KEYBOARD_CONTROL = True
-```
-
-#### Ekran Bölgesini Belirleme:
-
-1. Oyunu tam ekran açın
-2. Oyun penceresinin koordinatlarını not edin
-3. `SCREEN_REGION` değerini buna göre ayarlayın
-
 ### Yöntem 3: Hibrit Entegrasyon
 
-API ve ekran görüntü yöntemlerinin kombinasyonunu kullanır.
+API ve ekran otomasyonu yöntemlerinin kombinasyonunu kullanır.
 
 ```python
 class GameIntegrationSettings:
@@ -165,7 +205,130 @@ class GameIntegrationSettings:
     # Her iki yöntem de etkin
     USE_API = True
     USE_SCREEN_CAPTURE = True
-    OCR_ENABLED = True
+    IMAGE_RECOGNITION = True
+```
+
+## 🖱️ Ekran Otomasyonu ile Kullanım
+
+### Adım Adım Kılavuz
+
+#### 1. Oyunu Hazırlayın
+
+```
+1. League of Kingdoms oyununu açın (tarayıcı veya uygulama)
+2. Pencere başlığında "League of Kingdoms" yazıp yazmadığını kontrol edin
+3. Oyun penceresini istediğiniz boyutta ayarlayın
+4. Oyun haritasını açık tutun
+```
+
+#### 2. Bot Ayarlarını Yapın
+
+`config/settings.py` dosyasını düzenleyin:
+
+```python
+# Simülasyon modunu kapat
+GameIntegrationSettings.SIMULATION_MODE = False
+
+# Ekran otomasyonu aktif et
+GameIntegrationSettings.AUTOMATION_METHOD = "screen"
+GameIntegrationSettings.USE_SCREEN_CAPTURE = True
+GameIntegrationSettings.IMAGE_RECOGNITION = True
+GameIntegrationSettings.USE_MOUSE_CONTROL = True
+
+# İnsan benzeri hareket
+GameIntegrationSettings.HUMAN_LIKE_MOVEMENT = True
+
+# Kristal seviyeleri seç (örnek: sadece yüksek seviye)
+FilterSettings.TARGET_LEVELS = [4, 5]
+```
+
+#### 3. Bot'u Başlatın
+
+```bash
+# Windows
+start.bat
+
+# Linux/Mac
+python src/main.py
+```
+
+#### 4. Bot Çalışırken
+
+Bot otomatik olarak şunları yapacak:
+
+```
+1. ✓ Oyun penceresini bulma
+   - "League of Kingdoms" başlıklı pencereyi arar
+   - Pencereyi aktif hale getirir
+   - Harita merkezini kalibre eder
+
+2. ✓ Ekran tarama
+   - Oyun ekranının görüntüsünü alır
+   - Kristalleri renk ve şekil analizi ile tespit eder
+   - Kristal seviyelerini belirler (beyaz, yeşil, mavi, mor, altın)
+
+3. ✓ Navigasyon
+   - İnsan benzeri fare hareketleri ile haritada gezinir
+   - Kristal pozisyonlarına doğru hareket eder
+   - Haritayı yumuşak bir şekilde kaydırır
+
+4. ✓ Toplama
+   - Kristal üzerine tıklar
+   - Toplama animasyonunu bekler
+   - Başarıyı kontrol eder
+
+5. ✓ Tekrar
+   - Bir sonraki kristale geçer
+   - Döngüyü tekrarlar
+```
+
+#### 5. Güvenlik ve Anti-Detection
+
+Bot insan benzeri davranış sergiler:
+
+```python
+# Rastgele gecikmeler
+SecuritySettings.RANDOM_DELAYS = True
+SecuritySettings.MIN_RANDOM_DELAY = 0.5  # saniye
+SecuritySettings.MAX_RANDOM_DELAY = 2.0  # saniye
+
+# Hız sınırlama
+SecuritySettings.RATE_LIMITING = True
+SecuritySettings.MAX_REQUESTS_PER_MINUTE = 30
+
+# İnsan benzeri hareket
+- Eğri fare yolu (ara nokta ile)
+- Değişken hareket hızı
+- Rastgele duraklamalar
+```
+
+### İpuçları ve Püf Noktaları
+
+**✓ Pencere Tespiti Sorunları:**
+```python
+# Farklı pencere başlığı varsa:
+GameIntegrationSettings.GAME_WINDOW_TITLE = "LeagueOfKingdoms"  # veya başka
+
+# Veya manuel olarak pencereyi tam ekran yapın
+```
+
+**✓ Kristal Tespit İyileştirme:**
+```python
+# Kristal boyutlarını ayarlayın
+GameIntegrationSettings.CRYSTAL_MIN_AREA = 50  # Daha küçük kristaller için azaltın
+GameIntegrationSettings.CRYSTAL_MAX_AREA = 5000  # Daha büyük kristaller için artırın
+
+# Tespit hassasiyetini artırın
+GameIntegrationSettings.DETECTION_CONFIDENCE = 0.7  # 0-1 arası
+```
+
+**✓ Performans Optimizasyonu:**
+```python
+# Tarama hızını ayarlayın
+ScanSettings.SCAN_INTERVAL = 2.0  # Taramalar arası bekleme (saniye)
+
+# Döngü başına toplama sayısını sınırlayın
+CollectorSettings.MAX_COLLECT_PER_CYCLE = 10
 ```
 
 ## 🎮 Bildirim Ayarları
@@ -299,14 +462,57 @@ class SecuritySettings:
 2. Bağımlılıkları yeniden yükleyin: `pip install -r requirements.txt`
 3. Log dosyasını kontrol edin: `logs/crystal_bot.log`
 
-### Bağlantı Hataları
+### Ekran Otomasyonu Sorunları
+
+**Oyun Penceresi Bulunamıyor:**
+```
+1. Oyun açık mı? Oyunu başlatın
+2. Pencere başlığını kontrol edin - "League of Kingdoms" içermeli
+3. settings.py'de GAME_WINDOW_TITLE'ı düzenleyin
+4. Bot'u admin olarak çalıştırmayı deneyin
+```
+
+**Kristaller Tespit Edilmiyor:**
+```
+1. SIMULATION_MODE = False olmalı
+2. AUTOMATION_METHOD = "screen" olmalı
+3. Oyun zoom seviyesini değiştirmeyin
+4. Harita net görünüyor mu?
+5. CRYSTAL_MIN_AREA ve CRYSTAL_MAX_AREA ayarlarını düzenleyin
+```
+
+**Fare Hareketi Yavaş veya Hızlı:**
+```python
+# settings.py
+GameIntegrationSettings.MOVEMENT_SPEED = 0.5  # 0.1-2.0 arası ayarlayın
+GameIntegrationSettings.CLICK_DELAY = 0.2  # Tıklama gecikmesi
+```
+
+**Bağımlılık Hataları:**
+```bash
+# Tüm ekran otomasyonu paketlerini yükleyin
+pip install pyautogui pillow opencv-python pytesseract pygetwindow mss
+
+# Windows'ta Tesseract OCR gerekiyorsa:
+# https://github.com/UB-Mannheim/tesseract/wiki adresinden indirin
+```
+
+**Bot Pencereyi Kaybediyor:**
+```python
+# Pencereyi otomatik aktif et
+GameIntegrationSettings.AUTO_FOCUS_WINDOW = True
+
+# Oyun penceresini tam ekran yapmayın, pencere modunda kullanın
+```
+
+### Bağlantı Hataları (API Modu)
 
 1. `GAME_SERVER_URL` doğru mu?
 2. `AUTH_TOKEN` geçerli mi?
 3. İnternet bağlantınız aktif mi?
 4. Firewall/Antivirus engel oluyor mu?
 
-### Kristal Tespit Edilmiyor
+### Kristal Tespit Edilmiyor (Simülasyon Modu)
 
 1. `SIMULATION_MODE = False` olduğundan emin olun
 2. `TARGET_LEVELS` ayarını kontrol edin
@@ -322,6 +528,29 @@ class SecuritySettings:
 **Telegram:**
 - Bot token ve chat ID doğru mu?
 - Bot'a en az bir mesaj gönderdiniz mi?
+
+### Performance Sorunları
+
+**Bot Çok Yavaş:**
+```python
+# Tarama aralığını azaltın
+ScanSettings.SCAN_INTERVAL = 1.0  # saniye
+
+# Fare hızını artırın
+GameIntegrationSettings.MOVEMENT_SPEED = 1.0
+```
+
+**Bot Çok Hızlı (Şüpheli):**
+```python
+# Güvenlik ayarlarını kontrol edin
+SecuritySettings.RANDOM_DELAYS = True  # Mutlaka True
+SecuritySettings.MIN_RANDOM_DELAY = 0.5
+SecuritySettings.MAX_RANDOM_DELAY = 2.0
+
+# Hız sınırlaması
+SecuritySettings.RATE_LIMITING = True
+SecuritySettings.MAX_REQUESTS_PER_MINUTE = 30
+```
 
 ## 📞 Destek
 
