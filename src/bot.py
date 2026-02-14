@@ -14,7 +14,8 @@ from config.settings import (
     ScanSettings,
     FilterSettings,
     CollectorSettings,
-    NotificationSettings
+    NotificationSettings,
+    GameIntegrationSettings
 )
 from src.map_scanner import MapScanner
 from src.crystal_detector import CrystalDetector
@@ -66,6 +67,43 @@ class CrystalBot:
         self.session_start_time = None
         self.total_cycles = 0
         
+        # Ekran otomasyonu modüllerini başlat (eğer screen modu aktifse)
+        self.screen = None
+        self.navigator = None
+        self.image_detector = None
+        
+        if (GameIntegrationSettings.AUTOMATION_METHOD == "screen" and 
+            not GameIntegrationSettings.SIMULATION_MODE):
+            try:
+                from src.screen_automation import ScreenAutomation
+                from src.game_navigator import GameNavigator
+                from src.image_detector import ImageDetector
+                
+                self.logger.info("Ekran otomasyonu modülleri yükleniyor...")
+                
+                self.screen = ScreenAutomation()
+                self.navigator = GameNavigator(self.screen)
+                self.image_detector = ImageDetector()
+                
+                # Oyun penceresini bul
+                if self.screen.find_game_window():
+                    self.navigator.calibrate_map()
+                    self.logger.info("Ekran otomasyonu hazır")
+                else:
+                    self.logger.warning(
+                        "Oyun penceresi bulunamadı. Lütfen oyunu açın ve pencere başlığında "
+                        "'League of Kingdoms' olduğundan emin olun."
+                    )
+                    
+            except ImportError as e:
+                self.logger.error(
+                    f"Ekran otomasyonu bağımlılıkları yüklenemedi: {e}\n"
+                    "Lütfen şu komutu çalıştırın: pip install pyautogui pillow opencv-python pytesseract pygetwindow mss"
+                )
+                self.screen = None
+                self.navigator = None
+                self.image_detector = None
+        
         # Modülleri başlat
         self.scanner = MapScanner(
             center_position=center_position,
@@ -79,7 +117,9 @@ class CrystalBot:
         
         self.collector = CrystalCollector(
             auto_collect=CollectorSettings.AUTO_COLLECT,
-            dry_run=BotSettings.DRY_RUN
+            dry_run=BotSettings.DRY_RUN,
+            screen_automation=self.screen,
+            game_navigator=self.navigator
         )
         
         self.notifier = Notifier(
@@ -169,6 +209,13 @@ class CrystalBot:
         cycle_start = time.time()
         self.logger.info(f"--- Döngü #{self.total_cycles + 1} Başladı ---")
         
+        # Ekran otomasyonu modu
+        if (GameIntegrationSettings.AUTOMATION_METHOD == "screen" and 
+            self.screen and self.image_detector and not GameIntegrationSettings.SIMULATION_MODE):
+            self._run_cycle_screen_mode()
+            return
+        
+        # Normal mod (simülasyon veya API)
         # 1. TARAMA: Haritayı tara
         self.logger.info("Adım 1: Harita taranıyor...")
         scan_results = self.scanner.scan_area(
@@ -215,6 +262,102 @@ class CrystalBot:
             f"--- Döngü #{self.total_cycles + 1} Tamamlandı "
             f"(Süre: {cycle_duration:.2f}s) ---"
         )
+        
+        # Oturumu kaydet
+        if BotSettings.SAVE_SESSION:
+            self._save_session()
+    
+    def _run_cycle_screen_mode(self) -> None:
+        """Ekran otomasyonu modunda tek bir bot döngüsü çalıştırır."""
+        cycle_start = time.time()
+        self.logger.info("Ekran otomasyonu modu - Tarama başlıyor...")
+        
+        try:
+            # 1. EKRAN GÖRÜNTÜSÜ AL
+            screenshot = self.screen.capture_screen()
+            if screenshot is None:
+                self.logger.error("Ekran görüntüsü alınamadı")
+                return
+            
+            # 2. GÖRÜNTÜDE KRİSTALLERİ TESPİT ET
+            self.logger.info("Adım 1: Ekranda kristaller tespit ediliyor...")
+            detected_crystals = self.image_detector.detect_crystals_in_image(
+                screenshot,
+                target_levels=FilterSettings.TARGET_LEVELS
+            )
+            
+            if not detected_crystals:
+                self.logger.info("Ekranda kristal bulunamadı, harita kaydırılıyor...")
+                # Haritayı rastgele bir yöne kaydır
+                import random
+                region = self.screen.get_game_region()
+                if region:
+                    x, y, w, h = region
+                    center_x, center_y = x + w // 2, y + h // 2
+                    # Rastgele yön
+                    angle = random.uniform(0, 2 * 3.14159)
+                    import math
+                    offset = 100
+                    target_x = center_x + int(offset * math.cos(angle))
+                    target_y = center_y + int(offset * math.sin(angle))
+                    self.navigator.move_to_position(target_x, target_y, smooth=True)
+                return
+            
+            self.logger.info(f"{len(detected_crystals)} kristal tespit edildi")
+            
+            # 3. KRİSTALLERİ SIRALA (öncelik bazlı)
+            detected_crystals.sort(key=lambda c: c['level'], reverse=True)
+            
+            # Tespit edilen kristalleri bildir
+            self.notifier.notify_info(
+                f"{len(detected_crystals)} kristal tespit edildi (Seviyeler: "
+                f"{[c['level'] for c in detected_crystals]})"
+            )
+            
+            # 4. KRİSTALLERİ TOPLA
+            if CollectorSettings.AUTO_COLLECT:
+                self.logger.info("Adım 2: Kristaller toplanıyor...")
+                
+                collected = 0
+                failed = 0
+                max_collect = min(len(detected_crystals), CollectorSettings.MAX_COLLECT_PER_CYCLE)
+                
+                for i, crystal_info in enumerate(detected_crystals[:max_collect]):
+                    self.logger.info(f"İlerleme: {i+1}/{max_collect}")
+                    
+                    # Kristal objesi oluştur (basit)
+                    class Crystal:
+                        def __init__(self, level, position):
+                            self.level = level
+                            self.position = (0, 0)  # Oyun koordinatı
+                            self.screen_position = position  # Ekran koordinatı
+                            self.collected = False
+                    
+                    crystal = Crystal(crystal_info['level'], crystal_info['position'])
+                    
+                    # Kristali topla
+                    if self.collector.collect_crystal(crystal):
+                        collected += 1
+                    else:
+                        failed += 1
+                
+                # Toplama özetini bildir
+                self.notifier.notify_info(
+                    f"Toplama tamamlandı - Başarılı: {collected}, "
+                    f"Başarısız: {failed}, Toplam: {collected + failed}"
+                )
+            else:
+                self.logger.info("Otomatik toplama kapalı")
+            
+            # Döngü süresi
+            cycle_duration = time.time() - cycle_start
+            self.logger.info(
+                f"--- Döngü #{self.total_cycles + 1} Tamamlandı "
+                f"(Süre: {cycle_duration:.2f}s) ---"
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Ekran modu döngü hatası: {e}", exc_info=True)
         
         # Oturumu kaydet
         if BotSettings.SAVE_SESSION:
@@ -275,6 +418,14 @@ class CrystalBot:
         self.paused = False
         
         self.logger.info("Bot durduruluyor...")
+        
+        # Ekran otomasyonu kaynaklarını temizle
+        if self.screen:
+            try:
+                self.screen.close()
+                self.logger.debug("Ekran otomasyonu kapatıldı")
+            except Exception as e:
+                self.logger.error(f"Ekran otomasyonu kapatma hatası: {e}")
         
         # Oturumu kaydet
         if BotSettings.SAVE_SESSION:
